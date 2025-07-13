@@ -1,0 +1,61 @@
+# Default values for tcp-ingress
+# TCP Ingress configuration for VBMKTek platform databases and services
+# Manages TCP port mapping through nginx ingress controller
+
+global:
+  namespace: common-tools
+
+ingress:
+  enabled: true
+  className: "nginx"
+  
+  # Ingress controller namespace (where TCP config needs to be placed)
+  controllerNamespace: "ingress-nginx"
+  
+  # External IP của nginx ingress controller LoadBalancer
+  externalIP: "119.9.70.83"
+
+# PostgreSQL TCP ingress configuration (core-infra namespace)
+# External access: 119.9.70.83:32432 -> core-infra/postgres:5432
+postgresql:
+  enabled: true
+  port: 32432  # External port exposed on LoadBalancer
+  service:
+    name: postgres
+    port: 5432   # Internal service port
+    namespace: core-infra
+
+# MongoDB TCP ingress configuration (core-infra namespace)  
+# External access: 119.9.70.83:32017 -> core-infra/mongodb:27017
+mongodb:
+  enabled: true
+  port: 32017  # External port exposed on LoadBalancer
+  service:
+    name: mongodb
+    port: 27017  # Internal service port
+    namespace: core-infra
+
+# Redis TCP ingress configuration (core-infra namespace)
+# External access: 119.9.70.83:32379 -> core-infra/redis:6379
+redis:
+  enabled: true
+  port: 32379  # External port exposed on LoadBalancer
+  service:
+    name: redis
+    port: 6379   # Internal service port
+    namespace: core-infra
+
+# Future services can be added here when needed
+# Example:
+# serviceName:
+#   enabled: true
+#   port: 32XXX      # External port (use 32XXX range to avoid conflicts)
+#   service:
+#     name: service-name
+#     port: XXXX     # Internal service port
+#     namespace: target-namespace
+
+# Connection Information:
+# PostgreSQL: psql -h 119.9.70.83 -p 32432 -U postgres -d postgres
+# MongoDB: mongodb://root:changeme@119.9.70.83:32017/admin
+# Redis: redis-cli -h 119.9.70.83 -p 32379 -a changeme

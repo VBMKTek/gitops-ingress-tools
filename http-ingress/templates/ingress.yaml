@@ -1,0 +1,68 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "http-ingress.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "http-ingress.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if and .Values.ingress.tls.enabled .Values.ingress.tls.secretName }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+    {{- if .Values.ingress.host }}
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+    {{- else }}
+    - http:
+    {{- end }}
+        paths:
+        {{- if .Values.keycloak.enabled }}
+        # Keycloak main path with context
+        - path: {{ .Values.keycloak.path }}
+          pathType: {{ .Values.keycloak.pathType }}
+          backend:
+            service:
+              name: {{ .Values.keycloak.service.name }}
+              port:
+                number: {{ .Values.keycloak.service.port }}
+        {{- end }}
+        {{- if .Values.grafana.enabled }}
+        - path: {{ .Values.grafana.path }}
+          pathType: {{ .Values.grafana.pathType }}
+          backend:
+            service:
+              name: {{ .Values.grafana.service.name }}
+              port:
+                number: {{ .Values.grafana.service.port }}
+        {{- end }}
+        {{- if .Values.prometheus.enabled }}
+        - path: {{ .Values.prometheus.path }}
+          pathType: {{ .Values.prometheus.pathType }}
+          backend:
+            service:
+              name: {{ .Values.prometheus.service.name }}
+              port:
+                number: {{ .Values.prometheus.service.port }}
+        {{- end }}
+        {{- if .Values.kibana.enabled }}
+        - path: {{ .Values.kibana.path }}
+          pathType: {{ .Values.kibana.pathType }}
+          backend:
+            service:
+              name: {{ .Values.kibana.service.name }}
+              port:
+                number: {{ .Values.kibana.service.port }}
+        {{- end }}
+{{- end }}

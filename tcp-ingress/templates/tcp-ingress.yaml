@@ -1,0 +1,29 @@
+{{- if .Values.ingress.enabled }}
+---
+# ConfigMap for TCP services configuration
+# This ConfigMap is used by nginx ingress controller to route TCP traffic
+# Format: "external_port": "namespace/service_name:service_port"
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+  namespace: {{ .Values.ingress.controllerNamespace }}
+  labels:
+    {{- include "tcp-ingress.labels" . | nindent 4 }}
+  annotations:
+    description: "TCP port mapping for VBMKTek platform databases"
+    external-ip: {{ .Values.ingress.externalIP | quote }}
+data:
+  {{- if .Values.postgresql.enabled }}
+  # PostgreSQL: {{ .Values.ingress.externalIP }}:{{ .Values.postgresql.port }} -> {{ .Values.postgresql.service.namespace }}/{{ .Values.postgresql.service.name }}:{{ .Values.postgresql.service.port }}
+  "{{ .Values.postgresql.port }}": "{{ .Values.postgresql.service.namespace }}/{{ .Values.postgresql.service.name }}:{{ .Values.postgresql.service.port }}"
+  {{- end }}
+  {{- if .Values.mongodb.enabled }}
+  # MongoDB: {{ .Values.ingress.externalIP }}:{{ .Values.mongodb.port }} -> {{ .Values.mongodb.service.namespace }}/{{ .Values.mongodb.service.name }}:{{ .Values.mongodb.service.port }}
+  "{{ .Values.mongodb.port }}": "{{ .Values.mongodb.service.namespace }}/{{ .Values.mongodb.service.name }}:{{ .Values.mongodb.service.port }}"
+  {{- end }}
+  {{- if .Values.redis.enabled }}
+  # Redis: {{ .Values.ingress.externalIP }}:{{ .Values.redis.port }} -> {{ .Values.redis.service.namespace }}/{{ .Values.redis.service.name }}:{{ .Values.redis.service.port }}
+  "{{ .Values.redis.port }}": "{{ .Values.redis.service.namespace }}/{{ .Values.redis.service.name }}:{{ .Values.redis.service.port }}"
+  {{- end }}
+{{- end }}

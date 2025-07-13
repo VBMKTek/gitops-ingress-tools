@@ -1,0 +1,57 @@
+# Default values for http-ingress
+global:
+  namespace: common-tools
+
+ingress:
+  enabled: true
+  className: "nginx"  # hoặc traefik, haproxy tùy ingress controller bạn dùng
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    # No rewrite - let Keycloak handle its own context path
+    # Higher priority to override kgnn catch-all rules
+    nginx.ingress.kubernetes.io/priority: "1000"
+  host: ""  # Empty host to match any host
+  
+  # TLS configuration (optional)
+  tls:
+    enabled: false
+    secretName: ""
+
+# Keycloak ingress configuration
+keycloak:
+  enabled: true
+  path: "/kc-common"
+  pathType: Prefix
+  service:
+    name: keycloak
+    port: 8080
+    namespace: common-tools
+
+# Configuration for future services
+grafana:
+  enabled: true
+  path: "/grafana"
+  pathType: Prefix
+  service:
+    name: grafana
+    port: 3000
+    namespace: common-tools
+
+prometheus:
+  enabled: true
+  path: "/prometheus"
+  pathType: Prefix
+  service:
+    name: prometheus
+    port: 9090
+    namespace: common-tools
+
+kibana:
+  enabled: false
+  path: "/kibana" 
+  pathType: Prefix
+  service:
+    name: kibana
+    port: 5601
+    namespace: common-tools
